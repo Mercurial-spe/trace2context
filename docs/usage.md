@@ -29,11 +29,23 @@ Run the minimal coding agent:
 ```bash
 cp .env.example .env
 # Edit .env with OPENAI_BASE_URL, OPENAI_API_KEY, TRACE2CONTEXT_MODEL,
-# and TRACE2CONTEXT_API_MODE. The default mode is /v1/responses.
+# and TRACE2CONTEXT_API_MODE.
+rm -rf /tmp/trace2context-agent-demo
+cp -R examples/toy_python_bug /tmp/trace2context-agent-demo
 uv run trace2context run \
-  --workspace examples/toy_python_bug \
-  --max-steps 8 \
-  "Fix the failing test."
+  --workspace /tmp/trace2context-agent-demo \
+  --model deepseek-chat \
+  --api-mode chat_completions \
+  --max-steps 10 \
+  "Fix failing test."
 ```
 
 The run command creates ignored local artifacts under `runs/<run_id>/`.
+
+For DeepSeek, use:
+
+```env
+OPENAI_BASE_URL=https://api.deepseek.com
+TRACE2CONTEXT_MODEL=deepseek-chat
+TRACE2CONTEXT_API_MODE=chat_completions
+```

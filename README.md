@@ -23,7 +23,7 @@ agent/tool execution -> JSONL trace -> audit tags -> context filtering -> report
 - `context`: full-history, recent-N, and audit-aware filtering primitives.
 - `reporting`: Markdown audit report generation.
 - `tools`: minimal file and shell wrappers.
-- `agent`: placeholder for a minimal ReAct-like coding agent loop.
+- `agent`: minimal coding agent loop with JSON actions and model/tool tracing.
 
 ## Development
 
@@ -44,12 +44,18 @@ Run the minimal coding agent:
 ```bash
 cp .env.example .env
 # edit .env with your OpenAI-compatible endpoint and key
-# default API mode is /v1/responses with TRACE2CONTEXT_MODEL=gpt-5.4
+rm -rf /tmp/trace2context-agent-demo
+cp -R examples/toy_python_bug /tmp/trace2context-agent-demo
 uv run trace2context run \
-  --workspace examples/toy_python_bug \
-  --max-steps 8 \
-  "Fix the failing test."
+  --workspace /tmp/trace2context-agent-demo \
+  --model deepseek-chat \
+  --api-mode chat_completions \
+  --max-steps 10 \
+  "Fix failing test."
 ```
 
 Agent runs write ignored local artifacts under `runs/<run_id>/`, including
 `trace.jsonl` and `audit_report.md`.
+
+The command above uses a copied workspace so the tracked example fixture remains
+unchanged.

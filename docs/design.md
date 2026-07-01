@@ -15,7 +15,7 @@ User task
   -> read_file / write_file / shell wrappers
   -> JSONL trace
   -> audit analyzer
-  -> context filter
+  -> context filter for next prompt
   -> Markdown report / experiment metrics
 ```
 
@@ -29,6 +29,10 @@ User task
 - `tools`: file and shell wrappers for future live runs.
 - `agent`: JSON action protocol, OpenAI-compatible model client, and minimal
   coding loop.
+
+The agent keeps complete tool outputs in the JSONL trace, but only feeds the
+model a filtered context view. Long or repetitive outputs can be compressed or
+dropped from the next prompt while remaining available for audit reports.
 
 ## Initial Audit Tags
 

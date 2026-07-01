@@ -8,12 +8,22 @@ from trace2context.agent.model import ChatResponse
 from trace2context.agent.parser import ActionParseError, AgentAction, parse_action
 from trace2context.agent.prompts import DEFAULT_SYSTEM_PROMPT
 from trace2context.audit.analyzer import AuditAnalyzer
+from trace2context.context.builder import segments_from_events
 from trace2context.context.filter import AuditAwareFilter
 from trace2context.reporting.markdown import render_audit_report
 from trace2context.tools.file_ops import read_workspace_file, write_workspace_file
 from trace2context.tools.shell import run_shell
 from trace2context.trace.logger import TraceLogger
-from trace2context.trace.schema import EventType, Role, TokenUsage, ToolStatus, TraceEvent
+from trace2context.trace.schema import (
+    ContextAction,
+    ContextDecision,
+    ContextSegment,
+    EventType,
+    Role,
+    TokenUsage,
+    ToolStatus,
+    TraceEvent,
+)
 from trace2context.trace.token_counter import count_tokens
 
 
@@ -167,6 +177,22 @@ class MinimalCodingAgent:
         if not events:
             return "- No prior events."
 
+        segments = segments_from_events(events)
+        filter_result = AuditAwareFilter(
+            token_budget=self.context_token_budget
+        ).filter_segments(segments)
+        decision_by_segment_id = {
+            decision.segment_id: decision for decision in filter_result.decisions
+        }
+        rendered = [
+            self._render_segment(segment, decision_by_segment_id[segment.segment_id])
+            for segment in segments
+            if decision_by_segment_id[segment.segment_id].action != ContextAction.DROP
+        ]
+        if rendered:
+            return "\n".join(rendered[-12:])
+
+        # Fall back to event-level rendering if every content segment was dropped.
         lines: list[str] = []
         for event in events[-12:]:
             tags = f" tags={','.join(event.audit_tags)}" if event.audit_tags else ""
@@ -189,6 +215,25 @@ class MinimalCodingAgent:
                     f"{_shorten(event.content)}{tags}"
                 )
         return "\n".join(lines)
+
+    def _render_segment(
+        self,
+        segment: ContextSegment,
+        decision: ContextDecision,
+    ) -> str:
+        tags = f" tags={','.join(segment.audit_tags)}" if segment.audit_tags else ""
+        status = segment.metadata.get("status")
+        tool_name = segment.metadata.get("tool_name")
+        tool = f" tool={tool_name}" if tool_name else ""
+        status_text = f" status={status}" if status else ""
+        if decision.action == ContextAction.COMPRESS:
+            content = decision.summary or _shorten(segment.content, limit=120)
+        else:
+            content = _shorten(segment.content)
+        return (
+            f"step {segment.source_step_id}: {decision.action.value} "
+            f"{segment.kind.value}{tool}{status_text}: {content}{tags}"
+        )
 
     def _assistant_event(self, run_id: str, step_id: int, response: ChatResponse) -> TraceEvent:
         usage = response.usage or {}
