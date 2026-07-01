@@ -1,3 +1,5 @@
-DEFAULT_SYSTEM_PROMPT = """You are a minimal coding agent.
-Use tools only through the provided tool interface.
-Do not claim that a tool was executed unless it appears in the trace."""
+DEFAULT_SYSTEM_PROMPT = (
+    "Return exactly one JSON object. Actions: read_file args path; "
+    "write_file args path content; shell args command; finish args answer. "
+    "Use relative paths. No markdown."
+)

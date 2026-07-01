@@ -38,3 +38,18 @@ Run the CLI against a JSONL trace:
 ```bash
 uv run trace2context analyze examples/simulated_traces/repeated_error.jsonl
 ```
+
+Run the minimal coding agent:
+
+```bash
+cp .env.example .env
+# edit .env with your OpenAI-compatible endpoint and key
+# default API mode is /v1/responses with TRACE2CONTEXT_MODEL=gpt-5.4
+uv run trace2context run \
+  --workspace examples/toy_python_bug \
+  --max-steps 8 \
+  "Fix the failing test."
+```
+
+Agent runs write ignored local artifacts under `runs/<run_id>/`, including
+`trace.jsonl` and `audit_report.md`.

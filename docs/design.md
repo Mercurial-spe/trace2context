@@ -10,8 +10,9 @@ retention decisions.
 ## Pipeline
 
 ```text
-Tool-using agent
-  -> tool wrappers
+User task
+  -> minimal coding agent
+  -> read_file / write_file / shell wrappers
   -> JSONL trace
   -> audit analyzer
   -> context filter
@@ -26,6 +27,8 @@ Tool-using agent
 - `context.filter`: keep/compress/drop decisions.
 - `reporting.markdown`: human-readable audit summary.
 - `tools`: file and shell wrappers for future live runs.
+- `agent`: JSON action protocol, OpenAI-compatible model client, and minimal
+  coding loop.
 
 ## Initial Audit Tags
 

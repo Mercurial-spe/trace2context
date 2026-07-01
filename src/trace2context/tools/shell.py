@@ -14,9 +14,10 @@ def run_shell(
 ) -> ToolExecution:
     start = time.perf_counter()
     completed = subprocess.run(
-        command,
+        f"set -o pipefail; {command}",
         cwd=cwd,
         shell=True,
+        executable="/bin/bash",
         text=True,
         capture_output=True,
         timeout=timeout_seconds,
