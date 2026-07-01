@@ -3,12 +3,14 @@ from typing import Annotated
 
 import typer
 from rich.console import Console
+from rich.table import Table
 
 from trace2context.agent.loop import MinimalCodingAgent
 from trace2context.agent.model import ChatModelClient
 from trace2context.audit.analyzer import AuditAnalyzer
 from trace2context.config import Settings
 from trace2context.context.filter import AuditAwareFilter
+from trace2context.experiments.runner import compare_context_strategies
 from trace2context.reporting.markdown import render_audit_report
 from trace2context.trace.logger import read_trace
 
@@ -33,6 +35,58 @@ def report(trace_path: Path, output: Path = Path("audit_report.md")) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(render_audit_report(analysis, filter_result), encoding="utf-8")
     console.print(f"Wrote {output}")
+
+
+@app.command()
+def compare(
+    trace_path: Path,
+    recent_n: Annotated[
+        int,
+        typer.Option(help="Number of segments kept by recent-N baseline."),
+    ] = 6,
+    token_budget: Annotated[
+        int | None,
+        typer.Option(help="Token budget for audit-aware filtering."),
+    ] = None,
+    output: Annotated[
+        Path | None,
+        typer.Option(help="Optional JSON output path."),
+    ] = None,
+) -> None:
+    """Compare full-history, recent-N, and audit-aware context strategies."""
+    events = read_trace(trace_path)
+    metrics = compare_context_strategies(events, recent_n=recent_n, token_budget=token_budget)
+
+    table = Table(title="Context Strategy Comparison")
+    table.add_column("Strategy")
+    table.add_column("Before", justify="right")
+    table.add_column("After", justify="right")
+    table.add_column("Reduction", justify="right")
+    table.add_column("Keep", justify="right")
+    table.add_column("Compress", justify="right")
+    table.add_column("Drop", justify="right")
+
+    for item in metrics:
+        table.add_row(
+            item.strategy,
+            str(item.before_tokens),
+            str(item.after_tokens),
+            f"{item.reduction_ratio:.1%}",
+            str(item.kept_segments),
+            str(item.compressed_segments),
+            str(item.dropped_segments),
+        )
+    console.print(table)
+
+    if output:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(
+            "[\n"
+            + ",\n".join(item.model_dump_json(indent=2) for item in metrics)
+            + "\n]\n",
+            encoding="utf-8",
+        )
+        console.print(f"Wrote {output}")
 
 
 @app.command()

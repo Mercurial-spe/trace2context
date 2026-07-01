@@ -59,3 +59,11 @@ Agent runs write ignored local artifacts under `runs/<run_id>/`, including
 
 The command above uses a copied workspace so the tracked example fixture remains
 unchanged.
+
+Compare context strategies for a recorded trace:
+
+```bash
+uv run trace2context compare runs/<run_id>/trace.jsonl \
+  --recent-n 4 \
+  --token-budget 300
+```

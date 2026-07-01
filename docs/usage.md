@@ -49,3 +49,17 @@ OPENAI_BASE_URL=https://api.deepseek.com
 TRACE2CONTEXT_MODEL=deepseek-chat
 TRACE2CONTEXT_API_MODE=chat_completions
 ```
+
+Compare context strategies for a trace:
+
+```bash
+uv run trace2context compare runs/<run_id>/trace.jsonl \
+  --recent-n 4 \
+  --token-budget 300
+```
+
+This prints a table comparing:
+
+- `full_history`
+- `recent_N`
+- `audit_aware`
