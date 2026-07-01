@@ -37,7 +37,9 @@ dropped from the next prompt while remaining available for audit reports.
 ## Initial Audit Tags
 
 - `failed_tool_call`
+- `failed_test_command`
 - `long_tool_output`
+- `pipeline_command`
 - `repeated_command`
 - `repeated_error`
 - `successful_test_command`

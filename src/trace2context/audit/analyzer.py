@@ -49,6 +49,8 @@ class AuditAnalyzer:
             rules.tag_failed_tool_call(event)
             rules.tag_long_tool_output(event, self.long_output_threshold_tokens)
             rules.tag_successful_test_command(event)
+            rules.tag_failed_test_command(event)
+            rules.tag_pipeline_command(event)
             rules.tag_modified_file(event)
             rules.tag_possible_tool_hallucination(event)
 

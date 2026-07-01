@@ -8,7 +8,9 @@ from trace2context.trace.schema import EventType, ToolStatus, TraceEvent
 from trace2context.trace.token_counter import count_tokens
 
 FAILED_TOOL_CALL = "failed_tool_call"
+FAILED_TEST_COMMAND = "failed_test_command"
 LONG_TOOL_OUTPUT = "long_tool_output"
+PIPELINE_COMMAND = "pipeline_command"
 REPEATED_COMMAND = "repeated_command"
 REPEATED_ERROR = "repeated_error"
 SUCCESSFUL_TEST_COMMAND = "successful_test_command"
@@ -26,6 +28,10 @@ TOOL_CLAIM_PATTERNS = [
 ]
 
 TEST_COMMAND_PATTERN = re.compile(r"\b(pytest|npm test|pnpm test|yarn test|go test|cargo test)\b")
+TEST_FAILURE_OUTPUT_PATTERN = re.compile(
+    r"(=+\s+FAILURES\s+=+|FAILED\s+\S+|ERROR collecting|failed in \d|\b\d+\s+failed\b)",
+    re.I,
+)
 
 
 def normalize_command(command: str) -> str:
@@ -58,8 +64,31 @@ def tag_successful_test_command(event: TraceEvent) -> None:
     if event.event_type != EventType.TOOL_RESULT or event.tool_name != "shell":
         return
     command = str(event.tool_input or "")
-    if event.status == ToolStatus.SUCCESS and TEST_COMMAND_PATTERN.search(command):
+    if (
+        event.status == ToolStatus.SUCCESS
+        and TEST_COMMAND_PATTERN.search(command)
+        and not _looks_like_failed_test_output(event)
+    ):
         event.with_tag(SUCCESSFUL_TEST_COMMAND)
+
+
+def tag_failed_test_command(event: TraceEvent) -> None:
+    if event.event_type != EventType.TOOL_RESULT or event.tool_name != "shell":
+        return
+    command = str(event.tool_input or "")
+    failed = event.status == ToolStatus.FAILED or (
+        event.exit_code is not None and event.exit_code != 0
+    ) or _looks_like_failed_test_output(event)
+    if failed and TEST_COMMAND_PATTERN.search(command):
+        event.with_tag(FAILED_TEST_COMMAND)
+
+
+def tag_pipeline_command(event: TraceEvent) -> None:
+    if event.event_type != EventType.TOOL_RESULT or event.tool_name != "shell":
+        return
+    command = str(event.tool_input or "")
+    if "|" in command:
+        event.with_tag(PIPELINE_COMMAND)
 
 
 def tag_modified_file(event: TraceEvent) -> None:
@@ -105,3 +134,7 @@ def tag_repeated_errors(events: list[TraceEvent]) -> None:
         fingerprint = error_fingerprint(event.stderr or event.stdout or event.content)
         if fingerprints[fingerprint] >= 2:
             event.with_tag(REPEATED_ERROR)
+
+
+def _looks_like_failed_test_output(event: TraceEvent) -> bool:
+    return bool(TEST_FAILURE_OUTPUT_PATTERN.search(event.stdout or event.stderr or event.content))
