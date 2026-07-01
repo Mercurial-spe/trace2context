@@ -1,0 +1,9 @@
+[strategies.full_history]
+description = "Keep all history."
+
+[strategies.recent_n]
+description = "Keep only recent N events."
+n = 6
+
+[strategies.audit_aware]
+description = "Use audit tags to keep, compress, or drop context segments."

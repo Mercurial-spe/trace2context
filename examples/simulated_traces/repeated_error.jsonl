@@ -1,0 +1,5 @@
+{"run_id":"demo_repeated_error","step_id":1,"event_type":"message","role":"user","content":"Fix the failing calculator test.","token_count":8}
+{"run_id":"demo_repeated_error","step_id":2,"event_type":"tool_result","tool_name":"shell","tool_input":"pytest tests/test_calc.py","status":"failed","exit_code":1,"stderr":"AssertionError: expected 4 got 5","token_count":120}
+{"run_id":"demo_repeated_error","step_id":3,"event_type":"tool_result","tool_name":"shell","tool_input":"pytest tests/test_calc.py","status":"failed","exit_code":1,"stderr":"AssertionError: expected 4 got 9","token_count":120}
+{"run_id":"demo_repeated_error","step_id":4,"event_type":"file_write","content":"Updated src/calc.py","files_touched":["src/calc.py"],"token_count":12}
+{"run_id":"demo_repeated_error","step_id":5,"event_type":"tool_result","tool_name":"shell","tool_input":"pytest tests/test_calc.py","status":"success","exit_code":0,"stdout":"1 passed in 0.03s","token_count":20}

@@ -1,0 +1,37 @@
+# Private/internal planning docs and course report artifacts
+/report/
+/agent.md
+/AGENTS.md
+/CLAUDE.md
+/可行性判断.md
+/调研结论v*.md
+/开源 Agent 项目生态调研*.md
+
+# Generated experiment artifacts
+/experiments/results/
+/runs/
+/outputs/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# Environment
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
