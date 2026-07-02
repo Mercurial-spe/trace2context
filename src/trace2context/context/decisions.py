@@ -4,6 +4,7 @@ KEEP_REASONS = {
     "root_task": "root objective",
     "project_rule": "project or system rule",
     "latest_error": "latest unresolved failure evidence",
+    "failed_test": "failed test evidence",
     "successful_test": "successful validation command",
     "modified_file": "file changed during the run",
 }

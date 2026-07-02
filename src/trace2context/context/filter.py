@@ -54,6 +54,8 @@ class AuditAwareFilter:
                 else COMPRESS_REASONS["long_output"]
             )
             return self._decision(segment, ContextAction.COMPRESS, reason)
+        if rules.FAILED_TEST_COMMAND in tags:
+            return self._decision(segment, ContextAction.KEEP, KEEP_REASONS["failed_test"])
         if rules.FAILED_TOOL_CALL in tags:
             return self._decision(segment, ContextAction.KEEP, KEEP_REASONS["latest_error"])
         return self._decision(segment, ContextAction.KEEP, "default retention")

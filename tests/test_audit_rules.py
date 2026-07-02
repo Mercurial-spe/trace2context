@@ -2,6 +2,7 @@ from trace2context.audit.analyzer import AuditAnalyzer
 from trace2context.audit.rules import (
     FAILED_TEST_COMMAND,
     FAILED_TOOL_CALL,
+    MODIFIED_FILE,
     PIPELINE_COMMAND,
     POSSIBLE_TOOL_HALLUCINATION,
     REPEATED_COMMAND,
@@ -103,3 +104,32 @@ def test_analyzer_detects_failed_test_output_when_pipeline_masks_exit_code():
 
     assert analysis.tag_counts[PIPELINE_COMMAND] == 1
     assert analysis.tag_counts[FAILED_TEST_COMMAND] == 1
+
+
+def test_analyzer_tags_file_write_but_not_file_read_as_modified():
+    events = [
+        TraceEvent(
+            run_id="run_test",
+            step_id=1,
+            event_type=EventType.FILE_READ,
+            tool_name="read_file",
+            tool_input="src/calc.py",
+            files_touched=["src/calc.py"],
+            token_count=10,
+        ),
+        TraceEvent(
+            run_id="run_test",
+            step_id=2,
+            event_type=EventType.FILE_WRITE,
+            tool_name="write_file",
+            tool_input="src/calc.py",
+            files_touched=["src/calc.py"],
+            token_count=10,
+        ),
+    ]
+
+    analysis = AuditAnalyzer().analyze(events)
+
+    assert MODIFIED_FILE not in events[0].audit_tags
+    assert MODIFIED_FILE in events[1].audit_tags
+    assert analysis.tag_counts[MODIFIED_FILE] == 1

@@ -18,10 +18,26 @@ Analyze an example trace:
 uv run trace2context analyze examples/simulated_traces/repeated_error.jsonl
 ```
 
+Built-in simulated traces:
+
+- `repeated_error.jsonl`: repeated failing command and repeated assertion
+  output.
+- `pipeline_masked_failure.jsonl`: piped test command with success exit code
+  but failing pytest output.
+- `tool_hallucination.jsonl`: assistant text that claims tool usage without a
+  structured tool event.
+
 Generate a Markdown audit report:
 
 ```bash
 uv run trace2context report examples/simulated_traces/repeated_error.jsonl --output outputs/audit_report.md
+```
+
+For the masked pipeline example:
+
+```bash
+uv run trace2context report examples/simulated_traces/pipeline_masked_failure.jsonl \
+  --output outputs/pipeline_masked_failure_report.md
 ```
 
 Run the minimal coding agent:

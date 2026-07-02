@@ -92,7 +92,7 @@ def tag_pipeline_command(event: TraceEvent) -> None:
 
 
 def tag_modified_file(event: TraceEvent) -> None:
-    if event.event_type == EventType.FILE_WRITE or event.files_touched:
+    if event.event_type == EventType.FILE_WRITE:
         event.with_tag(MODIFIED_FILE)
 
 

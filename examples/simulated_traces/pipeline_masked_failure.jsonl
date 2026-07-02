@@ -1,0 +1,5 @@
+{"run_id":"demo_pipeline_masked_failure","step_id":1,"event_type":"message","role":"user","content":"Fix the failing calculator tests while keeping the output short.","token_count":12}
+{"run_id":"demo_pipeline_masked_failure","step_id":2,"event_type":"tool_result","tool_name":"shell","tool_input":"python -m pytest --tb=short 2>&1 | head -100","status":"success","exit_code":0,"stdout":"FAILED tests/test_calc.py::test_add - assert 5 == 4\n1 failed, 2 passed in 0.14s","token_count":220}
+{"run_id":"demo_pipeline_masked_failure","step_id":3,"event_type":"file_read","tool_name":"read_file","tool_input":"src/calc.py","status":"success","stdout":"def add(a, b):\n    return a + b + 1\n","files_touched":["src/calc.py"],"token_count":30}
+{"run_id":"demo_pipeline_masked_failure","step_id":4,"event_type":"file_write","tool_name":"write_file","tool_input":"src/calc.py","status":"success","content":"Updated src/calc.py","files_touched":["src/calc.py"],"token_count":12}
+{"run_id":"demo_pipeline_masked_failure","step_id":5,"event_type":"tool_result","tool_name":"shell","tool_input":"pytest","status":"success","exit_code":0,"stdout":"3 passed in 0.08s","token_count":18}

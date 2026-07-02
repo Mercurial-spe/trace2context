@@ -39,6 +39,13 @@ Run the CLI against a JSONL trace:
 uv run trace2context analyze examples/simulated_traces/repeated_error.jsonl
 ```
 
+Generate a Markdown audit report:
+
+```bash
+uv run trace2context report examples/simulated_traces/pipeline_masked_failure.jsonl \
+  --output outputs/pipeline_masked_failure_report.md
+```
+
 Run the minimal coding agent:
 
 ```bash
@@ -67,3 +74,6 @@ uv run trace2context compare runs/<run_id>/trace.jsonl \
   --recent-n 4 \
   --token-budget 300
 ```
+
+The `examples/simulated_traces/` directory includes small fixtures for repeated
+errors, masked pipeline failures, and assistant tool-claim hallucination.
